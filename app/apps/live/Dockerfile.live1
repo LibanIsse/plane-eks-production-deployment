@@ -1,0 +1,68 @@
+FROM node:22-alpine AS base
+
+WORKDIR /app
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PNPM_HOME/bin:$PATH"
+ENV CI=1
+ENV TURBO_TELEMETRY_DISABLED=1
+
+RUN corepack enable pnpm
+
+
+FROM base AS builder
+
+RUN apk add --no-cache libc6-compat \
+    && pnpm add -g turbo@2.9.18
+
+COPY . .
+
+RUN turbo prune --scope=live --docker
+
+
+FROM base AS installer
+
+RUN apk add --no-cache libc6-compat
+
+COPY --from=builder /app/out/json/ .
+COPY --from=builder /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
+
+RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
+    pnpm fetch --store-dir=/pnpm/store
+
+COPY --from=builder /app/out/full/ .
+COPY turbo.json turbo.json
+
+RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
+    pnpm install --offline --frozen-lockfile --store-dir=/pnpm/store \
+    && pnpm turbo run build --filter=live
+
+
+FROM node:22-alpine AS runtime
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV TURBO_TELEMETRY_DISABLED=1
+
+RUN apk upgrade --no-cache \
+    && apk add --no-cache wget \
+    && addgroup -S appgroup \
+    && adduser -S appuser -G appgroup
+
+COPY --from=installer /app/packages ./packages
+COPY --from=installer /app/apps/live/dist ./apps/live/dist
+COPY --from=installer /app/apps/live/node_modules ./apps/live/node_modules
+COPY --from=installer /app/node_modules ./node_modules
+COPY --from=installer /app/apps/live/package.json ./apps/live/package.json
+
+RUN chown -R appuser:appgroup /app
+
+USER appuser
+
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+  CMD wget -q -O /dev/null http://127.0.0.1:3000/ || exit 1
+
+CMD ["node", "apps/live"]
