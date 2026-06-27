@@ -1,64 +1,54 @@
-# syntax=docker/dockerfile:1.7
 FROM node:22-alpine AS base
 
-# Setup pnpm package manager with corepack and configure global bin directory for caching
+WORKDIR /app
+
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PNPM_HOME/bin:$PATH"
-RUN corepack enable
+ENV CI=1
+ENV TURBO_TELEMETRY_DISABLED=1
 
-# *****************************************************************************
-# STAGE 1: Prune the project
-# *****************************************************************************
-FROM base AS builder
-# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-RUN apk update
-RUN apk add --no-cache libc6-compat
-# Set working directory
-WORKDIR /app
-ARG TURBO_VERSION=2.9.18
-RUN corepack enable pnpm && pnpm add -g turbo@${TURBO_VERSION}
-COPY . .
-RUN turbo prune --scope=live --docker
-
-# *****************************************************************************
-# STAGE 2: Install dependencies & build the project
-# *****************************************************************************
-# Add lockfile and package.json's of isolated subworkspace
-FROM base AS installer
-RUN apk update
-RUN apk add --no-cache libc6-compat
-WORKDIR /app
-
-# First install dependencies (as they change less often)
-COPY .gitignore .gitignore
-COPY --from=builder /app/out/json/ .
-COPY --from=builder /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
 RUN corepack enable pnpm
 
-# Copy full directory structure before fetch to ensure all package.json files are available
+
+FROM base AS builder
+
+RUN apk add --no-cache libc6-compat \
+    && pnpm add -g turbo@2.9.18
+
+COPY . .
+
+RUN turbo prune --scope=live --docker
+
+
+FROM base AS installer
+
+RUN apk add --no-cache libc6-compat
+
+COPY --from=builder /app/out/json/ .
+COPY --from=builder /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
+
+RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
+    pnpm fetch --store-dir=/pnpm/store
+
 COPY --from=builder /app/out/full/ .
 COPY turbo.json turbo.json
 
-# Fetch dependencies to cache store, then install offline with dev deps
-RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store pnpm fetch --store-dir=/pnpm/store
-RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store CI=true pnpm install --offline --frozen-lockfile --store-dir=/pnpm/store
+RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
+    pnpm install --offline --frozen-lockfile --store-dir=/pnpm/store \
+    && pnpm turbo run build --filter=live
 
-ENV TURBO_TELEMETRY_DISABLED=1
 
-RUN pnpm turbo run build --filter=live
+FROM node:22-alpine AS runtime
 
-# *****************************************************************************
-# STAGE 3: Run the project
-# *****************************************************************************
-
-FROM base AS runner
 WORKDIR /app
 
-# Remove go from Alpine APK database; not needed at runtime and carries stdlib CVEs
-RUN apk del go 2>/dev/null || true
+ENV NODE_ENV=production
+ENV TURBO_TELEMETRY_DISABLED=1
 
-# Remove vulnerable picomatch bundled inside npm (CVE-2026-33671); npm is not used at runtime
-RUN rm -rf /usr/local/lib/node_modules/npm/node_modules/picomatch
+RUN apk upgrade --no-cache \
+    && apk add --no-cache wget \
+    && addgroup -S appgroup \
+    && adduser -S appuser -G appgroup
 
 COPY --from=installer /app/packages ./packages
 COPY --from=installer /app/apps/live/dist ./apps/live/dist
@@ -66,11 +56,13 @@ COPY --from=installer /app/apps/live/node_modules ./apps/live/node_modules
 COPY --from=installer /app/node_modules ./node_modules
 COPY --from=installer /app/apps/live/package.json ./apps/live/package.json
 
-# esbuild and tsgolint are build-only Go binaries; remove from runtime image to eliminate stdlib CVEs
-RUN find /app/node_modules \( -name 'esbuild' -o -name 'tsgolint' \) -type f -delete 2>/dev/null || true
+RUN chown -R appuser:appgroup /app
 
-ENV TURBO_TELEMETRY_DISABLED=1
+USER appuser
 
 EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+  CMD wget -q -O /dev/null http://127.0.0.1:3000/ || exit 1
 
 CMD ["node", "apps/live"]
