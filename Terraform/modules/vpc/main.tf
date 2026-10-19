@@ -126,3 +126,20 @@ resource "aws_route_table_association" "private" {
   subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.private.id
 }
+
+# Rt database subnets
+resource "aws_route_table" "database" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "plane-eks-database-rt"
+  }
+}
+
+# Associate database subnets with database route table
+resource "aws_route_table_association" "database" {
+  count = length(var.database_subnets)
+
+  subnet_id      = aws_subnet.database[count.index].id
+  route_table_id = aws_route_table.database.id
+}
