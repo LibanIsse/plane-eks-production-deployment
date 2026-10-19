@@ -102,3 +102,27 @@ resource "aws_nat_gateway" "main" {
     Name = "plane-eks-nat"
   }
 }
+
+# Private route table for EKS
+resource "aws_route_table" "private" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "plane-eks-private-rt"
+  }
+}
+
+# Outbound internet access through NAT Gateway
+resource "aws_route" "private_nat" {
+  route_table_id         = aws_route_table.private.id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = aws_nat_gateway.main.id
+}
+
+# Associate private EKS subnets with the route table
+resource "aws_route_table_association" "private" {
+  count = length(var.private_subnets)
+
+  subnet_id      = aws_subnet.private[count.index].id
+  route_table_id = aws_route_table.private.id
+}
