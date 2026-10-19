@@ -48,3 +48,12 @@ resource "aws_subnet" "database" {
     Name = "plane-eks-database-${count.index + 1}"
   }
 }
+
+# Internet Gateway
+resource "aws_internet_gateway" "main" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "plane-eks-igw"
+  }
+}
