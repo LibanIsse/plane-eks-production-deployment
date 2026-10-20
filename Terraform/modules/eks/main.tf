@@ -1,7 +1,8 @@
 resource "aws_eks_cluster" "main" {
-  name     = var.cluster_name
-  role_arn = aws_iam_role.cluster.arn
-  version  = var.cluster_version
+  name                          = var.cluster_name
+  role_arn                      = aws_iam_role.cluster.arn
+  version                       = var.cluster_version
+  bootstrap_self_managed_addons = false
 
   access_config {
     authentication_mode                         = "API"
@@ -41,7 +42,7 @@ resource "aws_eks_node_group" "main" {
 
   ami_type       = "AL2023_x86_64_STANDARD"
   capacity_type  = "ON_DEMAND"
-  instance_types = ["t3.medium"]
+  instance_types = ["m7i-flex.large"]
   disk_size      = 30
 
   scaling_config {
@@ -57,7 +58,9 @@ resource "aws_eks_node_group" "main" {
   # Otherwise, EKS will not be able to properly delete EC2 Instances and Elastic Network Interfaces.
   depends_on = [
     aws_iam_role_policy_attachment.node_worker,
-    aws_iam_role_policy_attachment.node_ecr
+    aws_iam_role_policy_attachment.node_ecr,
+    aws_iam_role_policy_attachment.node_cni_bootstrap,
+    aws_eks_addon.vpc_cni
   ]
 
   tags = {
