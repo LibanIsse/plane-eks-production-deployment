@@ -64,3 +64,44 @@ resource "aws_eks_node_group" "main" {
     Name = "plane-node-group"
   }
 }
+
+# Amazon VPC CNI
+resource "aws_eks_addon" "vpc_cni" {
+  cluster_name = aws_eks_cluster.main.name
+  addon_name   = "vpc-cni"
+
+  pod_identity_association {
+    service_account = "aws-node"
+    role_arn        = aws_iam_role.vpc_cni.arn
+  }
+
+  depends_on = [
+    aws_iam_role_policy_attachment.vpc_cni
+  ]
+}
+
+# EKS Pod Identity Agent
+resource "aws_eks_addon" "pod_identity" {
+  cluster_name = aws_eks_cluster.main.name
+  addon_name   = "eks-pod-identity-agent"
+}
+
+# CoreDNS
+resource "aws_eks_addon" "coredns" {
+  cluster_name = aws_eks_cluster.main.name
+  addon_name   = "coredns"
+
+  depends_on = [
+    aws_eks_node_group.main
+  ]
+}
+
+# kube-proxy
+resource "aws_eks_addon" "kube_proxy" {
+  cluster_name = aws_eks_cluster.main.name
+  addon_name   = "kube-proxy"
+
+  depends_on = [
+    aws_eks_node_group.main
+  ]
+}
