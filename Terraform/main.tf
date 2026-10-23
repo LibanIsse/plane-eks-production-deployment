@@ -17,3 +17,11 @@ module "rds" {
   database_subnet_ids        = module.vpc.database_subnet_ids
   eks_node_security_group_id = module.eks.node_security_group_id
 }
+
+module "elasticache" {
+  source = "./modules/elasticache"
+
+  vpc_id                     = module.vpc.vpc_id
+  subnet_ids                 = module.vpc.private_subnet_ids
+  eks_node_security_group_id = module.eks.node_security_group_id
+}
