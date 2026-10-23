@@ -25,3 +25,12 @@ module "elasticache" {
   subnet_ids                 = module.vpc.private_subnet_ids
   eks_node_security_group_id = module.eks.node_security_group_id
 }
+
+module "amazon_mq" {
+  source = "./modules/amazon-mq"
+
+  vpc_id                     = module.vpc.vpc_id
+  subnet_ids                 = module.vpc.private_subnet_ids
+  eks_node_security_group_id = module.eks.node_security_group_id
+}
+
