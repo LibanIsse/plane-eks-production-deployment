@@ -36,13 +36,13 @@ module "amazon_mq" {
 module "s3" {
   source = "./modules/s3"
 
-  cluster_name = "plane-eks"
+  cluster_name = module.eks.cluster_name
 }
 
 module "iam" {
   source = "./modules/iam"
 
-  cluster_name = "plane-eks"
+  cluster_name = module.eks.cluster_name
 
   secret_arns = [
     module.rds.master_user_secret_arn,
