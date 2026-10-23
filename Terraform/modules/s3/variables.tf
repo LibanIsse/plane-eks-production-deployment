@@ -1,4 +1,4 @@
 variable "cluster_name" {
-  description = "EKS cluster associated with Plane Pod Identity"
+  description = "EKS cluster name for Pod Identity"
   type        = string
 }
