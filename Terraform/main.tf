@@ -27,10 +27,20 @@ module "elasticache" {
 }
 
 module "amazon_mq" {
-  source = "./modules/amazon-mq"
-
+  source                     = "./modules/amazon-mq"
   vpc_id                     = module.vpc.vpc_id
   subnet_ids                 = module.vpc.private_subnet_ids
   eks_node_security_group_id = module.eks.node_security_group_id
 }
+
+module "s3" {
+  source = "./modules/s3"
+
+  cluster_name = "plane-eks"
+}
+
+
+
+
+
 
