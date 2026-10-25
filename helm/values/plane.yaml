@@ -1,0 +1,47 @@
+serviceAccount:
+  create: true
+  name: plane-s3
+  cloudIdentity: true
+
+planeVersion: "2c9b6fa"
+
+web:
+  image: 471743301992.dkr.ecr.eu-west-2.amazonaws.com/plane/plane-web
+  pullPolicy: IfNotPresent
+
+space:
+  image: 471743301992.dkr.ecr.eu-west-2.amazonaws.com/plane/plane-space
+  pullPolicy: IfNotPresent
+
+admin:
+  image: 471743301992.dkr.ecr.eu-west-2.amazonaws.com/plane/plane-admin
+  pullPolicy: IfNotPresent
+
+live:
+  image: 471743301992.dkr.ecr.eu-west-2.amazonaws.com/plane/plane-live
+  pullPolicy: IfNotPresent
+
+api:
+  image: 471743301992.dkr.ecr.eu-west-2.amazonaws.com/plane/plane-api
+  pullPolicy: IfNotPresent
+
+worker:
+  image: 471743301992.dkr.ecr.eu-west-2.amazonaws.com/plane/plane-api
+  pullPolicy: IfNotPresent
+
+beatworker:
+  image: 471743301992.dkr.ecr.eu-west-2.amazonaws.com/plane/plane-api
+  pullPolicy: IfNotPresent
+
+
+postgres:
+  local_setup: false
+
+redis:
+  local_setup: false
+
+rabbitmq:
+  local_setup: false
+
+minio:
+  local_setup: false
