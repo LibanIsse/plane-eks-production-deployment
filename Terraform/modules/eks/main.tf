@@ -42,7 +42,7 @@ resource "aws_eks_node_group" "main" {
 
   ami_type       = "AL2023_ARM_64_STANDARD"
   capacity_type  = "ON_DEMAND"
-  instance_types = ["m7i-flex.large"]
+  instance_types = ["t4g.small"]
   disk_size      = 30
 
   scaling_config {
