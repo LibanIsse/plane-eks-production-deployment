@@ -46,7 +46,8 @@ module "iam" {
 
   secret_arns = [
     module.rds.master_user_secret_arn,
-    module.amazon_mq.secret_arn
+    module.amazon_mq.secret_arn,
+    data.aws_secretsmanager_secret.plane_signing_keys.arn
   ]
 }
 
