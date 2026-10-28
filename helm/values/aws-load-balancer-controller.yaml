@@ -1,0 +1,10 @@
+clusterName: plane-eks
+region: eu-west-2
+
+vpcId: "${VPC_ID}"
+
+serviceAccount:
+  create: true
+  name: aws-load-balancer-controller
+
+replicaCount: 1
