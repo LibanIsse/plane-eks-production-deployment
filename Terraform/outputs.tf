@@ -27,3 +27,8 @@ output "rabbitmq_endpoint" {
   description = "Amazon MQ secure AMQP endpoint"
   value       = module.amazon_mq.endpoint
 }
+
+output "s3_bucket_name" {
+  description = "Name of the Plane application S3 bucket"
+  value       = module.s3.bucket_name
+}

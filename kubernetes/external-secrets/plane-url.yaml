@@ -1,0 +1,75 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: plane-app
+  namespace: plane
+
+spec:
+  refreshInterval: 1h
+
+  secretStoreRef:
+    name: aws-secretsmanager
+    kind: SecretStore
+
+  target:
+    name: plane-app-secrets
+    creationPolicy: Owner
+    template:
+      engineVersion: v2
+      data:
+        DATABASE_URL: 'postgresql://{{ .dbUsername | urlquery }}:{{ .dbPassword | urlquery }}@${RDS_ENDPOINT}/${RDS_DATABASE_NAME}?sslmode=require'
+
+        AMQP_URL: 'amqps://{{ .mqUsername | urlquery }}:{{ .mqPassword | urlquery }}@${RABBITMQ_HOST_PORT}/%2F'
+
+        REDIS_URL: 'rediss://${VALKEY_ENDPOINT}:${VALKEY_PORT}/0'
+
+  data:
+    # PostgreSQL credentials
+    - secretKey: dbUsername
+      remoteRef:
+        key: "${RDS_SECRET_ARN}"
+        property: username
+
+    - secretKey: dbPassword
+      remoteRef:
+        key: "${RDS_SECRET_ARN}"
+        property: password
+
+    # RabbitMQ credentials
+    - secretKey: mqUsername
+      remoteRef:
+        key: plane/rabbitmq/credentials
+        property: username
+
+    - secretKey: mqPassword
+      remoteRef:
+        key: plane/rabbitmq/credentials
+        property: password
+
+---
+
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: plane-live
+  namespace: plane
+spec:
+  refreshInterval: 1h
+
+  secretStoreRef:
+    name: aws-secretsmanager
+    kind: SecretStore
+
+  target:
+    name: plane-live-secrets
+    creationPolicy: Owner
+    template:
+      engineVersion: v2
+      data:
+        REDIS_URL: "rediss://${VALKEY_ENDPOINT}:${VALKEY_PORT}/0"
+
+  data:
+    - secretKey: signingKey
+      remoteRef:
+        key: plane/app/signing-keys
+        property: LIVE_SERVER_SECRET_KEY

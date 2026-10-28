@@ -1,3 +1,8 @@
+external_secrets:
+  app_env_existingSecret: plane-app-secrets
+  live_env_existingSecret: plane-live-secrets
+  app_keys_existingSecret: plane-app-keys
+
 serviceAccount:
   create: true
   name: plane-s3
@@ -45,3 +50,8 @@ rabbitmq:
 
 minio:
   local_setup: false
+
+env:
+  requireExplicitSecrets: true
+  docstore_bucket: "${S3_BUCKET_NAME}"
+  aws_region: "eu-west-2"
