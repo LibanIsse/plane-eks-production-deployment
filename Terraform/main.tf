@@ -42,7 +42,8 @@ module "s3" {
 module "iam" {
   source = "./modules/iam"
 
-  cluster_name = module.eks.cluster_name
+  cluster_name      = module.eks.cluster_name
+  route53_zone_name = "eks.libancloud.co.uk"
 
   secret_arns = [
     module.rds.master_user_secret_arn,
