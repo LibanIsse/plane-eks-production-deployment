@@ -8,11 +8,17 @@ sources:
 domainFilters:
   - eks.libancloud.co.uk
 
+managedRecordTypes:
+  - A
+  - AAAA
+  - CNAME
+  - TXT
+
 policy: upsert-only
 
 registry: txt
 txtOwnerId: plane-eks-production
-txtPrefix: external-dns-
+txtPrefix: "external-dns-%{record_type}."
 
 serviceAccount:
   create: true
