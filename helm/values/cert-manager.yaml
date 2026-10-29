@@ -1,0 +1,14 @@
+crds:
+  enabled: true
+
+serviceAccount:
+  create: true
+  name: cert-manager
+
+replicaCount: 1
+
+webhook:
+  replicaCount: 1
+
+cainjector:
+  replicaCount: 1

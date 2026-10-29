@@ -1,0 +1,12 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: plane-tls
+  namespace: nginx-ingress
+spec:
+  secretName: plane-tls
+  dnsNames:
+    - eks.libancloud.co.uk
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer

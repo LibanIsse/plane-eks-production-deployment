@@ -27,3 +27,6 @@ controller:
       memory: 256Mi
 
   enableSnippets: false
+
+  defaultTLS:
+    secret: nginx-ingress/plane-tls
