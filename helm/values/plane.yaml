@@ -1,3 +1,13 @@
+ingress:
+  enabled: true
+  appHost: "eks.libancloud.co.uk"
+  ingressClass: "nginx"
+
+ssl:
+  externalTermination: true
+  createIssuer: false
+  generateCerts: false
+
 external_secrets:
   app_env_existingSecret: plane-app-secrets
   live_env_existingSecret: plane-live-secrets
@@ -13,30 +23,58 @@ planeVersion: "2c9b6fa"
 web:
   image: 471743301992.dkr.ecr.eu-west-2.amazonaws.com/plane/plane-web
   pullPolicy: IfNotPresent
+  cpuRequest: 50m
+  memoryRequest: 64Mi
+  cpuLimit: 500m
+  memoryLimit: 256Mi
 
 space:
   image: 471743301992.dkr.ecr.eu-west-2.amazonaws.com/plane/plane-space
   pullPolicy: IfNotPresent
+  cpuRequest: 50m
+  memoryRequest: 64Mi
+  cpuLimit: 500m
+  memoryLimit: 256Mi
 
 admin:
   image: 471743301992.dkr.ecr.eu-west-2.amazonaws.com/plane/plane-admin
   pullPolicy: IfNotPresent
+  cpuRequest: 50m
+  memoryRequest: 64Mi
+  cpuLimit: 500m
+  memoryLimit: 256Mi
 
 live:
   image: 471743301992.dkr.ecr.eu-west-2.amazonaws.com/plane/plane-live
   pullPolicy: IfNotPresent
+  cpuRequest: 50m
+  memoryRequest: 128Mi
+  cpuLimit: 500m
+  memoryLimit: 512Mi
 
 api:
   image: 471743301992.dkr.ecr.eu-west-2.amazonaws.com/plane/plane-api
   pullPolicy: IfNotPresent
+  cpuRequest: 100m
+  memoryRequest: 256Mi
+  cpuLimit: 500m
+  memoryLimit: 768Mi
 
 worker:
   image: 471743301992.dkr.ecr.eu-west-2.amazonaws.com/plane/plane-api
   pullPolicy: IfNotPresent
+  cpuRequest: 100m
+  memoryRequest: 256Mi
+  cpuLimit: 500m
+  memoryLimit: 768Mi
 
 beatworker:
   image: 471743301992.dkr.ecr.eu-west-2.amazonaws.com/plane/plane-api
   pullPolicy: IfNotPresent
+  cpuRequest: 50m
+  memoryRequest: 128Mi
+  cpuLimit: 500m
+  memoryLimit: 384Mi
 
 
 postgres:
