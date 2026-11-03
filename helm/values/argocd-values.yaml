@@ -59,3 +59,9 @@ dex:
 
 notifications:
   enabled: false
+
+
+# Allow Kustomize to render Helm charts
+configs:
+  cm:
+    kustomize.buildOptions: --enable-helm
