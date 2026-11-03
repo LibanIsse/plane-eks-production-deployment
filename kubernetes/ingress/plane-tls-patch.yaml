@@ -1,0 +1,4 @@
+spec:
+  tls:
+    - hosts:
+        - eks.libancloud.co.uk
