@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Retrieve the existing S3 bucket name from Terraform.
-S3_BUCKET_NAME="$(terraform -chdir=terraform output -raw s3_bucket_name)"
+S3_BUCKET_NAME="$(terraform -chdir=infra output -raw s3_bucket_name)"
 export S3_BUCKET_NAME
 
 if [[ -z "$S3_BUCKET_NAME" ]]; then
