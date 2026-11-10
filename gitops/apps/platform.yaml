@@ -64,3 +64,27 @@ spec:
       - ServerSideApply=true
       - ClientSideApplyMigration=false
 
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: plane-secretstore
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/LibanIsse/plane-eks-production-deployment.git
+    targetRevision: main
+    path: kubernetes/external-secrets
+    directory:
+      include: secretsstore.yaml
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: plane
+
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
