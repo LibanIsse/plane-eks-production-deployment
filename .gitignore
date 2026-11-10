@@ -27,5 +27,6 @@ override.tf.json
 node_modules/
 __pycache__/
 *.pyc
-# Generated environment-specific Plane configuration
+
+# Generated environment-specific configuration
 gitops/generated/
