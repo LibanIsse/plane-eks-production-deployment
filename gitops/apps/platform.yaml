@@ -214,3 +214,24 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: plane-tls
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/LibanIsse/plane-eks-production-deployment.git
+    targetRevision: main
+    path: kubernetes/cert-manager
+    directory:
+      include: '{clusterissuer.yaml,certificate.yaml}'
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: nginx-ingress
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
