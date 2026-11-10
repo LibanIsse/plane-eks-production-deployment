@@ -6,11 +6,11 @@ controller:
   replicas: 1
   resources:
     requests:
-      cpu: 50m
-      memory: 64Mi
-    limits:
-      cpu: 300m
+      cpu: 100m
       memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
 
 server:
   replicas: 1
