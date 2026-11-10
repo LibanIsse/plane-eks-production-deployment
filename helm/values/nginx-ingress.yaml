@@ -28,3 +28,8 @@ controller:
 
   enableSnippets: false
 
+
+  defaultTLS:
+    secret: nginx-ingress/plane-tls
+  wildcardTLS:
+    secret: nginx-ingress/plane-tls
