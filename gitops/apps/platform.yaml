@@ -79,7 +79,7 @@ spec:
     targetRevision: main
     path: kubernetes/external-secrets
     directory:
-      include: secretsstore.yaml
+      include: '{namespace.yaml,secretsstore.yaml}'
 
   destination:
     server: https://kubernetes.default.svc
