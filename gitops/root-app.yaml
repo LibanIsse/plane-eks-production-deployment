@@ -16,6 +16,15 @@ spec:
     server: https://kubernetes.default.svc
     namespace: argocd
 
+  ignoreDifferences:
+    - group: argoproj.io
+      kind: Application
+      name: aws-load-balancer-controller
+      namespace: argocd
+      jsonPointers:
+        - /spec/sources/0/helm/parameters
+
   syncPolicy:
     syncOptions:
       - CreateNamespace=false
+      - RespectIgnoreDifferences=true
