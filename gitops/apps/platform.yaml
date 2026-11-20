@@ -117,6 +117,22 @@ metadata:
   namespace: argocd
 spec:
   project: default
+  ignoreDifferences:
+    - kind: Secret
+      name: aws-load-balancer-tls
+      namespace: kube-system
+      jqPathExpressions:
+        - .data
+    - group: admissionregistration.k8s.io
+      kind: MutatingWebhookConfiguration
+      name: aws-load-balancer-webhook
+      jqPathExpressions:
+        - .webhooks[].clientConfig.caBundle
+    - group: admissionregistration.k8s.io
+      kind: ValidatingWebhookConfiguration
+      name: aws-load-balancer-webhook
+      jqPathExpressions:
+        - .webhooks[].clientConfig.caBundle
   sources:
     - repoURL: https://aws.github.io/eks-charts
       chart: aws-load-balancer-controller
