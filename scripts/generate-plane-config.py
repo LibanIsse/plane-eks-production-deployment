@@ -66,3 +66,62 @@ for name, content in rendered.items():
     print(f"Generated: gitops/generated/{name}")
 
 print("Configuration generation completed.")
+
+# Generate the Argo CD Application from environment-specific Helm values.
+plane_app = {
+    "apiVersion": "argoproj.io/v1alpha1",
+    "kind": "Application",
+    "metadata": {
+        "name": "plane",
+        "namespace": "argocd",
+    },
+    "spec": {
+        "project": "default",
+        "source": {
+            "repoURL": "https://helm.plane.so/",
+            "chart": "plane-ce",
+            "targetRevision": "1.8.5",
+            "helm": {
+                "releaseName": "plane",
+                "values": rendered["plane-values.yaml"],
+            },
+        },
+        "destination": {
+            "server": "https://kubernetes.default.svc",
+            "namespace": "plane",
+        },
+        "ignoreDifferences": [
+            {
+                "group": "apps",
+                "kind": "Deployment",
+                "namespace": "plane",
+                "jsonPointers": [
+                    "/spec/template/metadata/annotations/timestamp"
+                ],
+            },
+            {
+                "group": "batch",
+                "kind": "Job",
+                "name": "plane-api-migrate-1",
+                "namespace": "plane",
+                "jsonPointers": [
+                    "/spec/template/metadata/annotations/timestamp"
+                ],
+            }
+        ],
+        "syncPolicy": {
+            "automated": {
+                "prune": False,
+                "selfHeal": True,
+            },
+            "syncOptions": [
+                "CreateNamespace=true",
+                "RespectIgnoreDifferences=true",
+            ],
+        },
+    },
+}
+
+path = OUTPUT / "plane-application.json"
+path.write_text(json.dumps(plane_app, indent=2))
+print("Generated: gitops/generated/plane-application.json")
