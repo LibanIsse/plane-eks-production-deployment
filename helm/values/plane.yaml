@@ -7,6 +7,7 @@ ingress:
     nginx.org/proxy-redirect-to: "https://eks.libancloud.co.uk/"
 
 ssl:
+  tls_secret_name: plane-tls
   externalTermination: true
   createIssuer: false
   generateCerts: false

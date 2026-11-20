@@ -228,7 +228,7 @@ spec:
     targetRevision: main
     path: kubernetes/cert-manager
     directory:
-      include: '{clusterissuer.yaml,certificate.yaml}'
+      include: '{clusterissuer.yaml,certificate.yaml,plane-certificate.yaml}'
   destination:
     server: https://kubernetes.default.svc
     namespace: nginx-ingress
